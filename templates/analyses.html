@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Analyses EC2 - NutriTrack</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body{font-family:sans-serif;background:#f5f7fa;margin:0}
+        .nav{background:white;padding:15px 30px;box-shadow:0 2px 10px rgba(0,0,0,.1);display:flex;justify-content:space-between}
+        .nav a{color:#555;text-decoration:none;margin-left:20px}
+        .nav .logo{font-weight:bold;color:#2c5364;font-size:1.2rem}
+        .container{max-width:1400px;margin:0 auto;padding:20px}
+        .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px;text-align:center}
+        .st{background:white;padding:15px;border-radius:10px}
+        .st .v{font-size:2rem;font-weight:bold;color:#2c5364}
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+        .chart{background:white;padding:15px;border-radius:10px}
+        .chart h3{font-size:.9rem;margin-bottom:10px}
+        .ct{width:100%;height:300px}
+        .full{grid-column:span 2}
+        @media(max-width:768px){.grid{grid-template-columns:1fr}.full{grid-column:span 1}}
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="logo">🧬 NutriTrack - Analyses EC2</div>
+        <div><a href="/">Accueil</a><a href="/collecte">Collecte</a><a href="/analyses">Analyses</a></div>
+    </div>
+    <div class="container">
+        <div class="stats">
+            <div class="st"><div class="v">{{ stats.nb }}</div><div>Patients</div></div>
+            <div class="st"><div class="v">{{ stats.imc_moy }}</div><div>IMC moyen</div></div>
+            <div class="st"><div class="v">{{ stats.age_moy }} ans</div><div>Âge moyen</div></div>
+        </div>
+        <div class="grid">
+            <div class="chart"><h3>📈 1. Régression Simple : Âge vs IMC</h3><div id="c1" class="ct"></div></div>
+            <div class="chart"><h3>🧩 2. K-Means Clustering</h3><div id="c2" class="ct"></div></div>
+            <div class="chart"><h3>🔬 3. ACP - Réduction dimension</h3><div id="c3" class="ct"></div></div>
+            <div class="chart"><h3>📦 4. IMC par Région</h3><div id="c4" class="ct"></div></div>
+            <div class="chart full"><h3>🔗 5. Matrice de Corrélation</h3><div id="c5" class="ct" style="height:400px"></div></div>
+            <div class="chart"><h3>📊 6. Distribution IMC</h3><div id="c6" class="ct"></div></div>
+        </div>
+    </div>
+    <script>
+        Plotly.newPlot('c1', {{ graphs.g1 | safe }}.data, {{ graphs.g1 | safe }}.layout);
+        Plotly.newPlot('c2', {{ graphs.g2 | safe }}.data, {{ graphs.g2 | safe }}.layout);
+        Plotly.newPlot('c3', {{ graphs.g3 | safe }}.data, {{ graphs.g3 | safe }}.layout);
+        Plotly.newPlot('c4', {{ graphs.g4 | safe }}.data, {{ graphs.g4 | safe }}.layout);
+        Plotly.newPlot('c5', {{ graphs.g5 | safe }}.data, {{ graphs.g5 | safe }}.layout);
+        Plotly.newPlot('c6', {{ graphs.g6 | safe }}.data, {{ graphs.g6 | safe }}.layout);
+    </script>
+</body>
+</html>

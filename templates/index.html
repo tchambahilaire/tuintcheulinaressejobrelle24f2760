@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriTrack - Santé</title>
+    <style>
+        body{font-family:sans-serif;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);min-height:100vh;margin:0;color:white}
+        .container{max-width:800px;margin:0 auto;padding:40px 20px;text-align:center}
+        h1{font-size:3rem;margin-bottom:10px}
+        .sub{font-size:1.2rem;opacity:.9;margin-bottom:20px}
+        .badge{background:rgba(255,255,255,.2);padding:8px 20px;border-radius:30px;display:inline-block}
+        .card{background:white;color:#333;border-radius:20px;padding:30px;margin:30px 0;text-align:left}
+        .card h2{color:#2c5364}
+        .box{background:#f0f7fa;padding:20px;border-radius:15px;border-left:5px solid #2c5364;margin:20px 0}
+        .nb{font-size:3rem;font-weight:bold;color:#2c5364;text-align:center}
+        .btn{display:inline-block;padding:15px 30px;border-radius:50px;text-decoration:none;font-weight:bold;margin:10px;font-size:1.1rem}
+        .btn-p{background:#2c5364;color:white}
+        .btn-s{background:white;color:#2c5364;border:2px solid #2c5364}
+        .btn:hover{transform:translateY(-3px)}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 NutriTrack</h1>
+        <p class="sub">Suivi et Analyse des Indicateurs de Santé</p>
+        <div class="badge">INF 232 EC2</div>
+        
+        <div class="card">
+            <h2>🇨🇲 Contexte</h2>
+            <div class="box">
+                <p>Le Cameroun fait face à une augmentation des maladies non transmissibles (diabète, hypertension, obésité). Cette application utilise l'IA pour analyser les facteurs de risque.</p>
+            </div>
+            <div style="text-align:center;margin:20px 0">
+                <div class="nb">{{ nb }}</div>
+                <div>Patients enregistrés</div>
+            </div>
+            <div style="text-align:center">
+                <a href="/collecte" class="btn btn-p">➕ Nouvelle collecte</a>
+                <a href="/analyses" class="btn btn-s">📊 Voir les analyses</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Collecte - NutriTrack</title>
+    <style>
+        body{font-family:sans-serif;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);min-height:100vh;padding:20px}
+        .container{max-width:600px;margin:0 auto;background:white;border-radius:20px;padding:30px}
+        h2{color:#2c5364}
+        input,select{width:100%;padding:12px;margin:8px 0;border:2px solid #e0e0e0;border-radius:10px;font-size:1rem}
+        input:focus,select:focus{outline:none;border-color:#2c5364}
+        button{width:100%;padding:14px;background:#2c5364;color:white;border:none;border-radius:10px;font-size:1.1rem;cursor:pointer;margin-top:15px}
+        .nav{margin-bottom:20px}
+        .nav a{color:white;margin-right:15px;text-decoration:none}
+        .result{padding:15px;border-radius:10px;margin-top:15px;display:none}
+        .ok{background:#d4edda;color:#155724;display:block}
+        .err{background:#f8d7da;color:#721c24;display:block}
+        label{font-weight:bold;font-size:.9rem}
+        .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    </style>
+</head>
+<body>
+    <div class="nav"><a href="/">← Accueil</a><a href="/analyses">Analyses →</a></div>
+    <div class="container">
+        <h2>📋 Nouveau Patient</h2>
+        <form id="f">
+            <div class="row">
+                <div><label>Âge</label><input type="number" id="age" required></div>
+                <div><label>Région</label><select id="region"><option>Centre</option><option>Littoral</option><option>Ouest</option><option>Nord</option><option>Sud</option></select></div>
+            </div>
+            <div class="row">
+                <div><label>Poids (kg)</label><input type="number" id="poids" step="0.1" required></div>
+                <div><label>Taille (cm)</label><input type="number" id="taille" required></div>
+            </div>
+            <div class="row">
+                <div><label>Tension</label><input type="number" id="tension" step="0.1" required></div>
+                <div><label>Cholestérol</label><input type="number" id="cholesterol" step="0.1" required></div>
+            </div>
+            <div class="row">
+                <div><label>Glycémie</label><input type="number" id="glycemie" step="0.1" required></div>
+                <div><label>Activité (0-5)</label><select id="activite"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+            </div>
+            <label><input type="checkbox" id="fumeur"> Fumeur</label>
+            <button type="submit">💾 Enregistrer</button>
+        </form>
+        <div id="r" class="result"></div>
+    </div>
+    <script>
+        document.getElementById('f').onsubmit=async(e)=>{
+            e.preventDefault();
+            const fd=new FormData();
+            fd.append('age',document.getElementById('age').value);
+            fd.append('region',document.getElementById('region').value);
+            fd.append('poids',document.getElementById('poids').value);
+            fd.append('taille',document.getElementById('taille').value);
+            fd.append('tension',document.getElementById('tension').value);
+            fd.append('cholesterol',document.getElementById('cholesterol').value);
+            fd.append('glycemie',document.getElementById('glycemie').value);
+            fd.append('activite',document.getElementById('activite').value);
+            if(document.getElementById('fumeur').checked) fd.append('fumeur','on');
+            
+            const res=await fetch('/save',{method:'POST',body:fd});
+            const d=await res.json();
+            const r=document.getElementById('r');
+            if(d.status==='success'){
+                r.className='result ok';
+                r.innerHTML=`✅ IMC: ${d.imc} (${d.categorie})`;
+            }else{
+                r.className='result err';
+                r.innerHTML='❌ Erreur';
+            }
+        };
+    </script>
+</body>
+</html>

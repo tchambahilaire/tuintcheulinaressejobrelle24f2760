@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyses EC2 - NutriTrack</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; min-height: 100vh; }
+        .navbar { background: white; padding: 1rem 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #667eea; }
+        .nav-links a { margin-left: 2rem; text-decoration: none; color: #555; font-weight: 500; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .stats-header { background: white; border-radius: 15px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 1.8rem; font-weight: bold; color: #667eea; }
+        .stat-label { color: #666; font-size: 0.8rem; }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .chart-card { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .chart-card h3 { margin-bottom: 1rem; color: #333; font-size: 1rem; }
+        .chart-container { width: 100%; height: 350px; }
+        .full-width { grid-column: span 2; }
+        .alert { padding: 1rem; border-radius: 10px; margin-bottom: 1rem; }
+        .alert-warning { background: #fff3cd; color: #856404; }
+        .alert-info { background: #d1ecf1; color: #0c5460; }
+        .status-bar { position: fixed; bottom: 20px; left: 20px; background: white; padding: 0.5rem 1.5rem; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-size: 0.9rem; }
+        @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">🧬 NutriTrack Pro - Analyses EC2</div>
+        <div class="nav-links">
+            <a href="/">Accueil</a>
+            <a href="/collecte">Collecte</a>
+            <a href="/stats">Analyses</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        {% if error %}
+        <div class="alert alert-warning">
+            <strong>⚠️ {{ error }}</strong><br>
+            <a href="/collecte">Ajouter des données</a> pour commencer l'analyse.
+        </div>
+        {% else %}
+        
+        <div class="stats-header">
+            <div class="stats-grid">
+                <div class="stat-item"><div class="stat-value">{{ stats.nb_patients }}</div><div class="stat-label">Patients</div></div>
+                <div class="stat-item"><div class="stat-value">{{ stats.age_moyen }}</div><div class="stat-label">Âge moyen</div></div>
+                <div class="stat-item"><div class="stat-value">{{ stats.age_min }}-{{ stats.age_max }}</div><div class="stat-label">Âge (min-max)</div></div>
+                <div class="stat-item"><div class="stat-value">{{ stats.imc_moyen }}</div><div class="stat-label">IMC moyen</div></div>
+                <div class="stat-item"><div class="stat-value">{{ stats.tension_moyenne }}</div><div class="stat-label">Tension moy.</div></div>
+                <div class="stat-item"><div class="stat-value">{{ stats.pct_fumeurs }}%</div><div class="stat-label">Fumeurs</div></div>
+                <div class="stat-item"><div class="stat-value">{{ stats.pct_surpoids }}%</div><div class="stat-label">Surpoids</div></div>
+                <div class="stat-item"><div class="stat-value">{{ stats.pct_obeses }}%</div><div class="stat-label">Obèses</div></div>
+            </div>
+        </div>
+        
+        <div class="alert alert-info">
+            <strong>🧠 Syllabus INF232 EC2 :</strong> 
+            Régression Simple • Régression Multiple • ACP (PCA) • K-Means • KNN
+        </div>
+        
+        <div class="charts-grid">
+            {% if graphs.hist_imc %}
+            <div class="chart-card"><h3>📊 1. Distribution de l'IMC</h3><div id="chart1" class="chart-container"></div></div>
+            {% endif %}
+            {% if graphs.regression_simple %}
+            <div class="chart-card"><h3>📈 2. Régression Simple (Âge vs IMC)</h3><div id="chart2" class="chart-container"></div></div>
+            {% endif %}
+            {% if graphs.regression_multiple %}
+            <div class="chart-card"><h3>📊 3. Régression Multiple (3D)</h3><div id="chart3" class="chart-container"></div></div>
+            {% endif %}
+            {% if graphs.pca %}
+            <div class="chart-card"><h3>🔬 4. ACP - Réduction de dimension</h3><div id="chart4" class="chart-container"></div></div>
+            {% endif %}
+            {% if graphs.kmeans %}
+            <div class="chart-card"><h3>🧩 5. K-Means (3 clusters)</h3><div id="chart5" class="chart-container"></div></div>
+            {% endif %}
+            {% if graphs.knn_viz %}
+            <div class="chart-card"><h3>🤖 6. Classification Supervisée</h3><div id="chart6" class="chart-container"></div></div>
+            {% endif %}
+            {% if graphs.boxplot %}
+            <div class="chart-card"><h3>📦 7. Impact du Tabac</h3><div id="chart7" class="chart-container"></div></div>
+            {% endif %}
+            {% if graphs.correlation %}
+            <div class="chart-card full-width"><h3>🔗 8. Matrice de Corrélation</h3><div id="chart8" class="chart-container" style="height: 400px;"></div></div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="status-bar" id="statusBar"><span id="statusText">🟢 Analyse en temps réel</span></div>
+    
+    <script>
+        {% if graphs.hist_imc %} Plotly.newPlot('chart1', {{ graphs.hist_imc | safe }}.data, {{ graphs.hist_imc | safe }}.layout); {% endif %}
+        {% if graphs.regression_simple %} Plotly.newPlot('chart2', {{ graphs.regression_simple | safe }}.data, {{ graphs.regression_simple | safe }}.layout); {% endif %}
+        {% if graphs.regression_multiple %} Plotly.newPlot('chart3', {{ graphs.regression_multiple | safe }}.data, {{ graphs.regression_multiple | safe }}.layout); {% endif %}
+        {% if graphs.pca %} Plotly.newPlot('chart4', {{ graphs.pca | safe }}.data, {{ graphs.pca | safe }}.layout); {% endif %}
+        {% if graphs.kmeans %} Plotly.newPlot('chart5', {{ graphs.kmeans | safe }}.data, {{ graphs.kmeans | safe }}.layout); {% endif %}
+        {% if graphs.knn_viz %} Plotly.newPlot('chart6', {{ graphs.knn_viz | safe }}.data, {{ graphs.knn_viz | safe }}.layout); {% endif %}
+        {% if graphs.boxplot %} Plotly.newPlot('chart7', {{ graphs.boxplot | safe }}.data, {{ graphs.boxplot | safe }}.layout); {% endif %}
+        {% if graphs.correlation %} Plotly.newPlot('chart8', {{ graphs.correlation | safe }}.data, {{ graphs.correlation | safe }}.layout); {% endif %}
+        
+        window.addEventListener('resize', function() {
+            for(let i=1; i<=8; i++) { const el = document.getElementById('chart'+i); if(el) Plotly.Plots.resize(el); }
+        });
+        
+        function checkStatus() {
+            fetch('/ping').then(r => r.json()).then(d => {
+                document.getElementById('statusText').innerHTML = `🟢 ${d.records} patients | ${d.cache_models} modèles ML`;
+            });
+        }
+        checkStatus(); setInterval(checkStatus, 30000);
+    </script>
+</body>
+</html>
